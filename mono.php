@@ -1,27 +1,39 @@
 <?php
-
+  echo "Working";
   class Mono {
 
     private $period;
     private $output_format;
     private $mono_secret_key;
     private $auth;
+    private $code;
 
-    function __construct($period, $output_format, $mono_secret_key, $auth) {
+    function __construct($period, $output_format, $mono_secret_key, $auth, $code) {
       this->period = $period;
       this->output_format = $output_format;
       this->mono_secret_key = $mono_secret_key;
       this->auth = $auth;
+      this->code = $code;
     }
-  // I have to consume the exchange token API first
-  
+
+    // function setCode($code_to_set) {
+    //   this->code = $code_to_set;
+    // }
+
+      // I have to consume the exchange token API first
+
     function getID() {
+      $code = this->code; // Code gotten from Mono connect
       $auth = this->auth;
+      $mono_secret_key = this.mono_secret_key
       $url = "https://api.withmono.com/account/".$auth;
       $url_header = array(
         'Content-Type: application/json'
       );
-
+      $body = array(
+        'code' => $code,
+        'mono-sec-key' => $mono_secret_key
+      )
 
       $curl = curl_init($url);
 
@@ -31,23 +43,24 @@
 
       curl_setopt($curl, CURLOPT_HTTPHEADER, $url_header);
 
+      curl_setopt($curl, CURLOPT_POSTFIELDS, $body)
+
       $response_ID = curl_exec($curl);
 
       curl_close($curl);
 
       echo $response_ID;
 
-      return $response_ID;
+      return $response_ID['id'];
 
     }
 
-
-  //  curl --request GET \
-  //--url https://api.withmono.com/accounts/id/statement
+    //  curl --request GET \
+    //--url https://api.withmono.com/accounts/id/statement
     function getStatement() {
-      $id = this->getID()['id'];
-      $period = this->period;
-      $output_format = "last".this->output_format."months";
+      $id = this->getID();
+      $period = "last".this->period."months";
+      $output_format = this->output_format;
       $url = "https://api.withmono.com/accounts/".$id."/statement?period=".$period."&output=".$output_format;
       
       $statement_response = file_get_contents($url);
